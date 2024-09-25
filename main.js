@@ -1,16 +1,19 @@
 $(document).ready(function () {
-  $(".button-group button").click(function () {
-    const type = $(this).data("type"); 
-    createFormContainer(type);
-  });
+    $(".button-group button").click(function () {
+        const type = $(this).data("type"); 
+        createFormContainer(type);
+    });
 
-  function createFormContainer(type) {
-    const newFormContainer = $('<div class="form-container"></div>');
+    function createFormContainer(type) {
+        const newFormContainer = $('<div class="form-container"></div>');
 
-    let formContent = `
+        let formContent = `
             <form id="form-action">
                 <span class="form-name">${capitalizeFirstLetter(type)} Field</span>
+        `;
 
+        if (type === "input"){
+            formContent +=`
                 <div class="form-row">
                     <span id="lable">Type</span>
                     <input id="data-option" type="text">
@@ -43,13 +46,72 @@ $(document).ready(function () {
                     <span id="lable">Require</span>
                     <input type="checkbox">
                 </div>
-            </form>`;
+            `;
+        }
 
-    newFormContainer.html(formContent);
-    $(".form").append(newFormContainer);
-  }
+        if (type === "textarea"){
+            formContent += `
+                <div class="form-row">
+                    <span id="lable">Lable</span>
+                    <input type="text">
+                </div>
 
-  function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
+                <div class="form-row">
+                    <span id="lable">Name</span>
+                    <input type="text">
+                </div>
+
+                <div class="form-row">
+                    <span id="lable">Id</span>
+                    <input type="text">
+                </div>
+
+                <div class="form-row">
+                    <span id="lable">Placeholder</span>
+                    <input type="text">
+                </div>
+
+                <div class="form-row">
+                    <span id="lable">Require</span>
+                    <input type="checkbox">
+                </div>
+            `;
+        }
+
+        if (type === "button"){
+            formContent += `
+                <div class="form-row">
+                    <span id="lable">Lable</span>
+                    <input type="text">
+                </div>
+
+                <div class="form-row">
+                    <span id="lable">Name</span>
+                    <input type="text">
+                </div>
+
+                <div class="form-row">
+                    <span id="lable">Id</span>
+                    <input type="text">
+                </div>
+            `
+        }
+
+        formContent += `</form>`;
+
+        newFormContainer.html(formContent);
+        $('.form').append(newFormContainer);
+        setTimeout(() => {
+            newFormContainer.slideDown(500, function() {
+                $('html, body').animate({
+                    scrollTop: newFormContainer.offset().top
+                }, 1000); 
+            });
+            newFormContainer.addClass('show');
+        }, 10); 
+    }
+
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 });
