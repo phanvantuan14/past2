@@ -1,6 +1,29 @@
 $(document).ready(function () {
     let formID = 0;
 
+    function validateForm(form) {
+        const id = form.find('.input-id').val().trim();
+        const name = form.find('.input-name').val().trim();
+        const label = form.find('.input-label').val().trim();
+
+        if (!id) {
+            alert('ID không được để trống.');
+            return false;
+        }
+
+        if (!name) {
+            alert('Name không được để trống.');
+            return false;
+        }
+
+        if (!label) {
+            alert('Label không được để trống.');
+            return false;
+        }
+
+        return true; // Tất cả các trường hợp hợp lệ
+    }
+
     // Chọn kiểu dữ liệu
     const choiceDataTypeOP = (formID) => {
         $(`#data-type-${formID}`).click(function() {
@@ -150,20 +173,21 @@ $(document).ready(function () {
     }
 
     // Lưu dữ liệu vào Local Storage
-    function saveDataToLocalStorage() {
+    function saveDataFormToLocalStorage() {
         $('#save-create-form').click(function () {
             let existingData = JSON.parse(localStorage.getItem('formData')) || []; 
             let formAdded = false;
 
             $('.form-container').each(function() {
-                const id = $(this).find('.input-id').val();
-                const name = $(this).find('.input-name').val();
-                const label = $(this).find('.input-label').val();
-                const require = $(this).find('.input-require').is(':checked');
-                const placeholder = $(this).find('.input-placeholder').val();
-                const typeInput = $(this).find('.data-option').val(); // Lấy loại form
+                const form = $(this);
+                if (validateForm(form)){
+                    const id = $(this).find('.input-id').val();
+                    const name = $(this).find('.input-name').val();
+                    const label = $(this).find('.input-label').val();
+                    const require = $(this).find('.input-require').is(':checked');
+                    const placeholder = $(this).find('.input-placeholder').val();
+                    const typeInput = $(this).find('.data-option').val(); 
 
-                if (id && name && label) {
                     const formData = {
                         id: id,
                         name: name,
@@ -173,9 +197,9 @@ $(document).ready(function () {
                         require: require,
                         type: $(this).find('.form-name').text().replace(' Field', '').toLowerCase(),
                     };
-
+    
                     const exists = existingData.some(existingForm => existingForm.id === formData.id);
-
+    
                     if (!exists) {
                         existingData.push(formData);
                         formAdded = true;
@@ -189,7 +213,7 @@ $(document).ready(function () {
         });
     }
 
-    saveDataToLocalStorage();
+    saveDataFormToLocalStorage();
 
     // Lưu loại form vào local storage
     function saveTypeToLocalStorage(type) {
@@ -205,8 +229,8 @@ $(document).ready(function () {
         let existingData = JSON.parse(localStorage.getItem('formData')) || []; 
 
         existingData.forEach(formData => {
-            createFormContainer(formData.type); // Tạo form với kiểu dữ liệu đã lưu
-            const lastForm = $('.form-container').last(); // Lấy form vừa tạo
+            createFormContainer(formData.type); 
+            const lastForm = $('.form-container').last(); 
             
             // Cập nhật các giá trị cho form
             lastForm.find('.input-id').val(formData.id);
@@ -214,10 +238,9 @@ $(document).ready(function () {
             lastForm.find('.input-label').val(formData.label);
             lastForm.find('.input-placeholder').val(formData.placeholder);
             lastForm.find('.input-require').prop('checked', formData.require);
-            lastForm.find('.data-option').val(formData.typeInput); // Cập nhật kiểu dữ liệu
+            lastForm.find('.data-option').val(formData.typeInput); 
         });
     }
-
 
 
     $(".form").sortable({
