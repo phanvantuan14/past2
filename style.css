@@ -8,10 +8,22 @@ body {
     font-family: Arial, sans-serif;
 }
 
+li{
+    list-style: none; 
+}
+
+a{
+    text-decoration: none;
+}
+
 .container {
     display: flex;
     justify-content: space-between;
     padding: 20px;
+}
+
+.position-item{
+    position: relative;
 }
 
 .button-group {
@@ -77,7 +89,7 @@ body {
     align-items: center;
     justify-content: space-between;
     margin: 5px 0;
-    position: relative;
+    /* position: relative; */
 }
 
 #form-action #form-name{
@@ -99,35 +111,64 @@ body {
 
 
 
-#data-type {
-    position: absolute;
-    right: 1%; 
-    top: 50%; 
-    transform: translateY(-50%);
-    cursor: pointer;
-    padding: 10px;
-}
-
-
-#data-option{
+.data-option{
     position: absolute;
     left: 20%;
 }
 
 
-#data-type i {
+.data-type i {
     font-size: 16px; 
     color: #666;
 }
 
+.data-type {
+    position: absolute;
+    right: 1%;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    padding: 20px;
+    padding-right: 30px; 
+}
+
+.data-type-options {
+    display: none;
+    position: absolute;
+    top: 100%; 
+    left: -119px;
+    width: 180px; 
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.data-type-options li {
+    padding: 8px 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.data-type-options li:hover {
+    background-color: #ebe4e4;
+} 
+
+.data-type i {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: auto; 
+} 
+
 
 #form-action input[type="checkbox"] {
     position: absolute;
-    left: 20%;
+    left: 21.5%;
 }
 
 #form-action input[type="text"]:focus {
     outline: none;
     border-color: #3498db;
 }
-
