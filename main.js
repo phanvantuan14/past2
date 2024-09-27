@@ -93,21 +93,24 @@ $(document).ready(function () {
     }
     
 
-    // Load data tu local storage
+    // Load data cua form tu local storage
     loadDataFromLocalStorage();
 
 
-
-    $(".button-group button").click(function () {
-        const type = $(this).data("type"); 
-        if (type) { 
-            createFormContainer(type);
-            saveTypeToLocalStorage(type);
-        }
-    });
+    // Get even click on button
+    function getEvenOnclickButton(){
+        $(".button-group button").click(function () {
+            const type = $(this).data("type"); 
+            if (type) { 
+                createFormContainer(type);
+                saveTypeToLocalStorage(type);
+            }
+        });
+    }
+    getEvenOnclickButton();
 
     // Get form name
-    function capitalizeFirstLetter(string) {
+    function getFormType(string) {
         if (string) { 
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
@@ -121,7 +124,7 @@ $(document).ready(function () {
         const newFormContainer = $('<div class="form-container"></div>');
         let formContent = `
             <form id="form-action">
-                <span class="form-name">${capitalizeFirstLetter(type)} Field</span>
+                <span class="form-name">${getFormType(type)} Field</span>
         `;
 
         // Form cho kiểu input
@@ -265,11 +268,7 @@ $(document).ready(function () {
 
         choiceDataTypeOP(formID);
 
-        $(".form").sortable({
-            update: function() {
-                saveOrderToLocalStorage();
-            }
-        });
+        animationDragForm();
     }
 
     // Lưu dữ liệu vào Local Storage
@@ -315,6 +314,7 @@ $(document).ready(function () {
             });
 
             localStorage.setItem('formData', JSON.stringify(existingData));
+            alert("Save data to local succeessfuly")
         });
     }
     saveDataFormToLocalStorage();
@@ -351,6 +351,14 @@ $(document).ready(function () {
     }
 
 
+    function animationDragForm(){
+        $(".form").sortable({
+            update: function() {
+                saveOrderToLocalStorage();
+            }
+        });
+    }
+
 
     // Hàm lưu thứ tự vào local storage
     function saveOrderToLocalStorage() {
@@ -383,6 +391,7 @@ $(document).ready(function () {
             });
         }
     }
+
     loadOrderFromLocalStorage();
 
 
