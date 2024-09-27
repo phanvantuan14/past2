@@ -1,8 +1,10 @@
 $(document).ready(function () {
     let formID = 0;
 
+
+    // Validate data field
     function validateForm(form) {
-        // Khởi tạo các biến cho các trường
+
         const id = form.find('.input-id').val();
         const name = form.find('.input-name').val();
         const label = form.find('.input-label').val();
@@ -16,10 +18,8 @@ $(document).ready(function () {
         form.find('.error-label').hide();
         form.find('.error-placeholder').hide();
     
-        // Biến kiểm tra tính hợp lệ
         let isValid = true;
     
-        // Kiểm tra từng trường có tồn tại trong form không
         if (form.find('.data-option').length && (inputType === undefined || inputType.trim() === "")) {
             form.find('.error-data-option').text('Type không được để trống.').show();
             isValid = false; 
@@ -60,28 +60,7 @@ $(document).ready(function () {
             const selectedValue = $(this).attr('data-value'); 
             $(`#data-option-${formID}`).val(selectedValue); 
     
-            // Ngăn chặn người dùng nhập ký tự chữ cái trong trường hợp type === number
-            if (selectedValue === "int" || selectedValue === "float" ||
-                selectedValue === "double" || selectedValue === "bigint") {
-                
-                $(`#placeholder-${formID}`).off("keydown").on("keydown", function(e) {
-                    if (
-                        e.key === "Backspace" ||
-                        e.key === "Delete" ||
-                        e.key === "ArrowLeft" ||
-                        e.key === "ArrowRight" ||
-                        (e.key >= "0" && e.key <= "9") || 
-                        e.key === "."
-                    ) {
-                        return;
-                    }
-                    e.preventDefault(); 
-                });
-            } else {
-
-                $(`#placeholder-${formID}`).off("keydown");
-                $(`#placeholder-${formID}`).attr('type', selectedValue);
-            }
+            $(`#placeholder-${formID}`).attr('type', selectedValue);
         });
     
         // Ẩn danh sách nếu click ra ngoài
@@ -109,13 +88,15 @@ $(document).ready(function () {
     }
     getEvenOnclickButton();
 
-    // Get form name
+
+    // Get form type name
     function getFormType(string) {
         if (string) { 
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
         return ''; 
     }
+
 
     // Tạo form
     function createFormContainer(type) {
@@ -124,7 +105,10 @@ $(document).ready(function () {
         const newFormContainer = $('<div class="form-container"></div>');
         let formContent = `
             <form id="form-action">
-                <span class="form-name">${getFormType(type)} Field</span>
+                <div class="form-header"> 
+                    <span class="form-name">${getFormType(type)} Field</span>
+                    <i class="icon x"></i>
+                </div>
         `;
 
         // Form cho kiểu input
@@ -146,42 +130,42 @@ $(document).ready(function () {
                         </div>
                     </div>
                     
-                    <span class="error-data-option" style="color: red; display: none;"></span>
+                    <span class="error-data-option" ></span>
                 </div>
                 <div class="form-colum">
                     <div class="form-row">
                         <span id="label">Label</span>
                         <input type="text" class="input-label">
                     </div>
-                    <span class="error-label" style="color: red; display: none;"></span>
+                    <span class="error-label" ></span>
                 </div>
                 <div class="form-colum">
                     <div class="form-row">
                         <span id="label">Name</span>
                         <input type="text" class="input-name">
                     </div>
-                    <span class="error-name" style="color: red; display: none;"></span> 
+                    <span class="error-name" ></span> 
                 </div>
                 <div class="form-colum">
                     <div class="form-row">
                         <span id="label">Id</span>
                         <input type="text" class="input-id">
                     </div>
-                    <span class="error-id" style="color: red; display: none;"></span>
+                    <span class="error-id" ></span>
                 </div>
                 <div class="form-colum">
                     <div class="form-row">
                         <span id="label">Placeholder</span>
                         <input type="text" class="input-placeholder" id="placeholder-${formID}">
                     </div>
-                    <span class="error-placeholder" style="color: red; display: none;"></span>
+                    <span class="error-placeholder" ></span>
                 </div>
                 <div class="form-colum">
                     <div class="form-row">
                         <span id="label">Require</span>
                         <input type="checkbox" class="input-require">
                     </div>
-                    <span class="error-require" style="color: red; display: none;"></span>
+                    <span class="error-require" ></span>
                 </div>
             `;
         }
@@ -194,35 +178,35 @@ $(document).ready(function () {
                     <span id="label">Label</span>
                     <input type="text" class="input-label">
                 </div>
-                <span class="error-label" style="color: red; display: none;"></span>
+                <span class="error-label"></span>
             </div>
             <div class="form-colum">
                 <div class="form-row">
                     <span id="label">Name</span>
                     <input type="text" class="input-name">
                 </div>
-                <span class="error-name" style="color: red; display: none;"></span> 
+                <span class="error-name"></span> 
             </div>
             <div class="form-colum">
                 <div class="form-row">
                     <span id="label">Id</span>
                     <input type="text" class="input-id">
                 </div>
-                <span class="error-id" style="color: red; display: none;"></span>
+                <span class="error-id"></span>
             </div>
             <div class="form-colum">
                 <div class="form-row">
                     <span id="label">Placeholder</span>
                     <input type="text" class="input-placeholder" id="placeholder-${formID}">
                 </div>
-                <span class="error-placeholder" style="color: red; display: none;"></span>
+                <span class="error-placeholder"></span>
             </div>
             <div class="form-colum">
                 <div class="form-row">
                     <span id="label">Require</span>
                     <input type="checkbox" class="input-require">
                 </div>
-                <span class="error-require" style="color: red; display: none;"></span>
+                <span class="error-require"></span>
             </div>
             `;
         }
@@ -235,28 +219,28 @@ $(document).ready(function () {
                     <span id="label">Label</span>
                     <input type="text" class="input-label">
                 </div>
-                <span class="error-label" style="color: red; display: none;"></span>
+                <span class="error-label"></span>
             </div>
             <div class="form-colum">
                 <div class="form-row">
                     <span id="label">Name</span>
                     <input type="text" class="input-name">
                 </div>
-                <span class="error-name" style="color: red; display: none;"></span> 
+                <span class="error-name"></span> 
             </div>
             <div class="form-colum">
                 <div class="form-row">
                     <span id="label">Id</span>
                     <input type="text" class="input-id">
                 </div>
-                <span class="error-id" style="color: red; display: none;"></span>
+                <span class="error-id"></span>
             </div>
             `;
         }
 
         formContent += `</form>`;
 
-        // Thêm form
+        // Thêm form moi
         newFormContainer.html(formContent);
         $('.form').append(newFormContainer);
 
@@ -271,11 +255,11 @@ $(document).ready(function () {
         animationDragForm();
     }
 
+
     // Lưu dữ liệu vào Local Storage
     function saveDataFormToLocalStorage() {
         $('#save-create-form').click(function () {
             let existingData = JSON.parse(localStorage.getItem('formData')) || []; 
-            let formAdded = false;
 
             $('.form-container').each(function() {
                 const form = $(this);
@@ -308,17 +292,15 @@ $(document).ready(function () {
                     } else {
                         
                         existingData.push(formData);
-                        formAdded = true;
                     }
                 }
             });
 
             localStorage.setItem('formData', JSON.stringify(existingData));
-            alert("Save data to local succeessfuly")
+            
         });
     }
     saveDataFormToLocalStorage();
-
 
 
     // Lưu loại form vào local storage
@@ -329,7 +311,6 @@ $(document).ready(function () {
             localStorage.setItem('formTypes', JSON.stringify(existingTypes));
         }
     }
-
 
 
     // Tải dữ liệu từ Local Storage
@@ -351,6 +332,7 @@ $(document).ready(function () {
     }
 
 
+    // Animation kéo thả form
     function animationDragForm(){
         $(".form").sortable({
             update: function() {
@@ -391,15 +373,13 @@ $(document).ready(function () {
             });
         }
     }
-
     loadOrderFromLocalStorage();
-
 
 
     // Reset dữ liệu form
     function resetDataForm() {
         $('#reset').click(function () {
-            // Chọn tất cả các form-container và xóa từ dưới lên
+            
             const formContainers = $('.form-container').get().reverse(); 
     
             formContainers.forEach(function(element, index) {
@@ -410,14 +390,10 @@ $(document).ready(function () {
 
 
             formID = 0;
-
             localStorage.removeItem('formData');
             localStorage.removeItem('formTypes');
             localStorage.removeItem('formOrder');
         });
-    }
-    
-
-    
+    }    
     resetDataForm();
 });
