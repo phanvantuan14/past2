@@ -8,7 +8,7 @@ $(document).ready(function () {
         const label = form.find('.input-label').val();
         const placeholder = form.find('.input-placeholder').val();
         const inputType = form.find('.data-option').val();
-
+    
         // Ẩn tất cả các thông báo lỗi trước
         form.find('.error-data-option').hide();
         form.find('.error-id').hide();
@@ -17,54 +17,54 @@ $(document).ready(function () {
         form.find('.error-placeholder').hide();
     
         // Biến kiểm tra tính hợp lệ
-        let isValid = true; 
-        
+        let isValid = true;
+    
         // Kiểm tra từng trường có tồn tại trong form không
-        if (form.find('.data-option').length && !inputType) {
+        if (form.find('.data-option').length && (inputType === undefined || inputType.trim() === "")) {
             form.find('.error-data-option').text('Type không được để trống.').show();
             isValid = false; 
         }
-
-        if (form.find('.input-id').length && !id) {
+    
+        if (form.find('.input-id').length && (id === undefined || id.trim() === "")) {
             form.find('.error-id').text('ID không được để trống.').show();
             isValid = false;
         }
-
-        if (form.find('.input-name').length && !name) {
+    
+        if (form.find('.input-name').length && (name === undefined || name.trim() === "")) {
             form.find('.error-name').text('Name không được để trống.').show();
             isValid = false; 
         }
     
-        if (form.find('.input-label').length && !label) {
+        if (form.find('.input-label').length && (label === undefined || label.trim() === "")) {
             form.find('.error-label').text('Label không được để trống.').show();
             isValid = false;
         }
-
-        if (form.find('.input-placeholder').length && !placeholder) {
+    
+        if (form.find('.input-placeholder').length && (placeholder === undefined || placeholder.trim() === "")) {
             form.find('.error-placeholder').text('Placeholder không được để trống.').show();
             isValid = false;
         }
-        
+    
         return isValid;
     }
     
-
+    
     // Chọn kiểu dữ liệu
     const choiceDataTypeOP = (formID) => {
         $(`#data-type-${formID}`).click(function() {
             $(`#data-type-options-${formID}`).toggle();
         });
-
+    
         // Cập nhật giá trị của ô input khi chọn một option
         $(`#data-type-options-${formID} li`).click(function() {
             const selectedValue = $(this).attr('data-value'); 
             $(`#data-option-${formID}`).val(selectedValue); 
-
-
-            // Ngan chan nguoi dung nhap ki tu chu cai trong truong hop type === number
+    
+            // Ngăn chặn người dùng nhập ký tự chữ cái trong trường hợp type === number
             if (selectedValue === "int" || selectedValue === "float" ||
-                selectedValue === "double" || selectedValue === "bigint" ) {
-                $(`#placeholder-${formID}`).off("keydown").on("keydown", function (e) {
+                selectedValue === "double" || selectedValue === "bigint") {
+                
+                $(`#placeholder-${formID}`).off("keydown").on("keydown", function(e) {
                     if (
                         e.key === "Backspace" ||
                         e.key === "Delete" ||
@@ -79,12 +79,11 @@ $(document).ready(function () {
                 });
             } else {
 
-                // Loại bỏ sự kiện keydown khi chọn loại khác
                 $(`#placeholder-${formID}`).off("keydown");
                 $(`#placeholder-${formID}`).attr('type', selectedValue);
             }
         });
-
+    
         // Ẩn danh sách nếu click ra ngoài
         $(document).click(function(event) {
             if (!$(event.target).closest(`#data-type-${formID}`).length) {
@@ -92,7 +91,7 @@ $(document).ready(function () {
             }
         });
     }
-
+    
 
     // Load data tu local storage
     loadDataFromLocalStorage();
@@ -365,12 +364,15 @@ $(document).ready(function () {
 
     function loadOrderFromLocalStorage() {
         const formOrder = JSON.parse(localStorage.getItem('formOrder')) || [];
+        
         if (formOrder.length > 0) {
             const formContainer = $('.form');
+
             formOrder.forEach(id => {
                 const form = $('.form-container').filter(function() {
                     return $(this).find('.input-id').val() === id;
                 });
+
                 if (form.length) {
                     formContainer.append(form);
                 }
