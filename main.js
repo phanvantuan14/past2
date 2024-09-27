@@ -376,6 +376,25 @@ $(document).ready(function () {
     loadOrderFromLocalStorage();
 
 
+    // Xoa 1 form neu click vao bieu tuong xoa
+    function deleteOneForm() {  
+        let formData = JSON.parse(localStorage.getItem('formData')) || [];
+    
+        $(document).on('click', '.form-header .icon.x', function() {
+            const formContainer = $(this).closest('.form-container');
+            const formId = formContainer.find('.input-id').val(); 
+
+            formContainer.remove();
+            
+            formData = formData.filter(item => item.id !== formId); 
+            localStorage.setItem('formData', JSON.stringify(formData)); 
+    
+            saveOrderToLocalStorage();
+        });
+    }
+    deleteOneForm();
+
+
     // Reset dữ liệu form
     function resetDataForm() {
         $('#reset').click(function () {
