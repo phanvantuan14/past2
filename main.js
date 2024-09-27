@@ -346,7 +346,6 @@ $(document).ready(function () {
     }
 
 
-    
 
     // Hàm lưu thứ tự vào local storage
     function saveOrderToLocalStorage() {
@@ -364,7 +363,7 @@ $(document).ready(function () {
 
     function loadOrderFromLocalStorage() {
         const formOrder = JSON.parse(localStorage.getItem('formOrder')) || [];
-        
+
         if (formOrder.length > 0) {
             const formContainer = $('.form');
 
@@ -400,6 +399,7 @@ $(document).ready(function () {
 
             localStorage.removeItem('formData');
             localStorage.removeItem('formTypes');
+            localStorage.removeItem('formOrder');
         });
     }
     
