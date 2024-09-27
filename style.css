@@ -84,13 +84,31 @@ a{
 
 }
 
+.form-colum{
+    display: flex;
+    flex-direction: column;
+}
+
+
+.form-colum .error-data-option,
+.error-id, .error-name,
+.error-label, .error-placeholder
+{   
+    margin-left: 20%;
+}
+
+.form-colum .error-data-option{
+    padding-top: 10px;
+}
+
 .form-row{
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin: 5px 0;
-    /* position: relative; */
 }
+
 
 #form-action #form-name{
     font-weight: bold;
@@ -110,6 +128,14 @@ a{
 }
 
 
+#form-action .input-placeholder{
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 80%;
+}
+
 
 .data-option{
     position: absolute;
@@ -124,19 +150,18 @@ a{
 
 .data-type {
     position: absolute;
-    right: 1%;
+    right: 0;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
     padding: 20px;
-    padding-right: 30px; 
 }
 
 .data-type-options {
     display: none;
     position: absolute;
     top: 100%; 
-    left: -119px;
+    right: 0;
     width: 180px; 
     background-color: #fff;
     border: 1px solid #ddd;
@@ -160,6 +185,7 @@ a{
     top: 50%;
     transform: translateY(-50%);
     pointer-events: auto; 
+    padding: 0 22px;
 } 
 
 
