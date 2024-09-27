@@ -298,18 +298,23 @@ $(document).ready(function () {
                         type: $(this).find('.form-name').text().replace(' Field', '').toLowerCase(),
                     };
     
-                    const exists = existingData.some(existingForm => existingForm.id === formData.id);
+                    const exists = existingData.some(
+                        existingForm => existingForm.id === formData.id);
     
-                    if (!exists) {
+                    if (exists) {
+
+                        existingData = existingData.map(existingForm =>
+                            existingForm.id === formData.id ? formData : existingForm
+                        );
+                    } else {
+                        
                         existingData.push(formData);
                         formAdded = true;
                     }
                 }
             });
 
-            if (formAdded) {
-                localStorage.setItem('formData', JSON.stringify(existingData));
-            }
+            localStorage.setItem('formData', JSON.stringify(existingData));
         });
     }
     saveDataFormToLocalStorage();
@@ -360,7 +365,7 @@ $(document).ready(function () {
     }
 
 
-
+    // Load lai thu tu form da luu truoc do
     function loadOrderFromLocalStorage() {
         const formOrder = JSON.parse(localStorage.getItem('formOrder')) || [];
 
@@ -402,6 +407,8 @@ $(document).ready(function () {
             localStorage.removeItem('formOrder');
         });
     }
+    
+
     
     resetDataForm();
 });
