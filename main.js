@@ -2,53 +2,6 @@ $(document).ready(function () {
     let formID = 0;
 
 
-    // Validate data field
-    function validateForm(form) {
-
-        const id = form.find('.input-id').val();
-        const name = form.find('.input-name').val();
-        const label = form.find('.input-label').val();
-        const placeholder = form.find('.input-placeholder').val();
-        const inputType = form.find('.data-option').val();
-    
-        // Ẩn tất cả các thông báo lỗi trước
-        form.find('.error-data-option').hide();
-        form.find('.error-id').hide();
-        form.find('.error-name').hide();
-        form.find('.error-label').hide();
-        form.find('.error-placeholder').hide();
-    
-        let isValid = true;
-    
-        if (form.find('.data-option').length && (inputType === undefined || inputType.trim() === "")) {
-            form.find('.error-data-option').text('Type không được để trống.').show();
-            isValid = false; 
-        }
-    
-        if (form.find('.input-id').length && (id === undefined || id.trim() === "")) {
-            form.find('.error-id').text('ID không được để trống.').show();
-            isValid = false;
-        }
-    
-        if (form.find('.input-name').length && (name === undefined || name.trim() === "")) {
-            form.find('.error-name').text('Name không được để trống.').show();
-            isValid = false; 
-        }
-    
-        if (form.find('.input-label').length && (label === undefined || label.trim() === "")) {
-            form.find('.error-label').text('Label không được để trống.').show();
-            isValid = false;
-        }
-    
-        if (form.find('.input-placeholder').length && (placeholder === undefined || placeholder.trim() === "")) {
-            form.find('.error-placeholder').text('Placeholder không được để trống.').show();
-            isValid = false;
-        }
-    
-        return isValid;
-    }
-    
-    
     // Chọn kiểu dữ liệu
     const choiceDataTypeOP = (formID) => {
         
@@ -105,7 +58,7 @@ $(document).ready(function () {
 
         const newFormContainer = $('<div class="form-container"></div>');
         let formContent = `
-            <form id="form-action">
+            <form data-id="${formID}" id="form-action">
                 <div class="form-header"> 
                     <span class="form-name">${getFormType(type)} Field</span>
                     <i class="icon x"></i>
@@ -304,11 +257,70 @@ $(document).ready(function () {
     }
     
 
+    // Validate data field
+    function validateForm(form) {
+        const idRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$/; 
+
+
+        const id = form.find('.input-id').val();
+        const name = form.find('.input-name').val();
+        const label = form.find('.input-label').val();
+        const placeholder = form.find('.input-placeholder').val();
+        const inputType = form.find('.data-option').val();
+
+
+        // Ẩn tất cả các thông báo lỗi trước
+        form.find('.error-data-option').hide();
+        form.find('.error-id').hide();
+        form.find('.error-name').hide();
+        form.find('.error-label').hide();
+        form.find('.error-placeholder').hide();
+    
+        let isValid = true;
+    
+        if (id === undefined || id.trim() === "") {
+            form.find('.error-id').text('ID không được để trống.').show();
+            isValid = false;
+        } else if (!idRegex.test(id)) {
+            form.find('.error-id').text('ID phải chứa cả chữ và số.').show();
+            isValid = false;
+        } else if (id.length < 5) {
+            form.find('.error-id').text('ID phải có ít nhất 6 kí tự .').show();
+            isValid = false;
+        }
+    
+        if (name === undefined || name.trim() === "") {
+            form.find('.error-name').text('Name không được để trống.').show();
+            isValid = false; 
+        } else if(name.length < 5 ){
+            form.find('.error-name').text('Name phải có ít nhất 5 kí tự.').show();
+            isValid = false; 
+        }
+    
+        if (label === undefined || label.trim() === "") {
+            form.find('.error-label').text('Label không được để trống.').show();
+            isValid = false;
+        } else if(label.length < 5 ){
+            form.find('.error-label').text('Lable phải có ít nhất 5 kí tự.').show();
+            isValid = false;
+        }
+    
+        if (form.find('.input-placeholder').length && (placeholder === undefined || placeholder.trim() === "")) {
+            form.find('.error-placeholder').text('Placeholder không được để trống.').show();
+            isValid = false;
+        }
+    
+        return isValid;
+    }
+
+
     // Lưu dữ liệu vào Local Storage
     function saveDataFormToLocalStorage() {
         $('#save-create-form').on('click', function () {
             let existingData = JSON.parse(localStorage.getItem('formData')) || [];
 
+            console.log(existingData);
+            
             let id,name,label, require,placeholder,typeInput;
             let formData = {};
 
@@ -316,6 +328,7 @@ $(document).ready(function () {
             $('.form-container').each(function () {
 
                 const form = $(this);
+
 
                 if (validateForm(form)) {
                     id = form.find('.input-id').val();
@@ -327,6 +340,7 @@ $(document).ready(function () {
     
     
                     formData = {
+                        formId: form.find("form").data('id'),
                         id: id,
                         name: name,
                         label: label,
@@ -346,7 +360,7 @@ $(document).ready(function () {
                     } 
         
                     const existingFormIndex = existingData.findIndex(
-                        existingForm => existingForm.id === formData.id);
+                        existingForm => existingForm.formId === formData.formId);
         
                     if (existingFormIndex !== -1) {
                         
@@ -369,8 +383,6 @@ $(document).ready(function () {
             localStorage.setItem('formData', JSON.stringify(existingData));
         });
     }
-
-    
     saveDataFormToLocalStorage();
 
 
