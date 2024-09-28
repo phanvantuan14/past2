@@ -51,12 +51,13 @@ $(document).ready(function () {
     
     // Chọn kiểu dữ liệu
     const choiceDataTypeOP = (formID) => {
-        $(`#data-type-${formID}`).click(function() {
+        
+        $(`#data-type-${formID}`).on("click",function() {
             $(`#data-type-options-${formID}`).toggle();
         });
     
         // Cập nhật giá trị của ô input khi chọn một option
-        $(`#data-type-options-${formID} li`).click(function() {
+        $(`#data-type-options-${formID} li`).on("click",function() {
             const selectedValue = $(this).attr('data-value'); 
             $(`#data-option-${formID}`).val(selectedValue); 
     
@@ -78,7 +79,7 @@ $(document).ready(function () {
 
     // Get even click on button
     function getEvenOnclickButton(){
-        $(".button-group button").click(function () {
+        $(".button-group button").on("click",function () {
             const type = $(this).data("type"); 
             if (type) { 
                 createFormContainer(type);
@@ -117,7 +118,7 @@ $(document).ready(function () {
                 <div class="form-colum ">
                     <div class="form-row position-item">
                         <span class="label">Type</span>
-                        <input class="data-option" id="data-option-${formID}" type="text" readonly>
+                        <input class="data-option" id="data-option-${formID}" type="text" value="text" readonly>
                         <div class="data-type" id="data-type-${formID}"> 
                             <i class="icon chevron down"></i>
                             <ul class="data-type-options" id="data-type-options-${formID}">
@@ -256,50 +257,120 @@ $(document).ready(function () {
     }
 
 
+    function convertTo12HourTime(timeString) {
+        if (!timeString) {
+            console.log("Time string is undefined or null");
+            return ''; 
+        }
+        
+        const [hour, minute] = timeString.split(':');
+        
+        if (!hour || !minute) {
+            console.log("Invalid time string format");
+            return ''; 
+        }
+        
+        let suffix = hour >= 12 ? 'CH' : 'SA';  
+        let hour12 = (hour % 12) || 12;  
+        
+        return `${hour12}:${minute} ${suffix}`;
+    }
+    
+
+    function convertTo12HourDatetime(datetimeString) {
+        if (!datetimeString) {
+            console.log("Datetime string is undefined or null");
+            return ''; 
+        }
+        
+        const [datePart, timePart] = datetimeString.split('T');
+        
+        if (!datePart || !timePart) {
+            console.log("Invalid datetime string format");
+            return ''; 
+        }
+        
+        const [hour, minute] = timePart.split(':');
+        
+        let suffix = hour >= 12 ? 'CH' : 'SA';  
+        let hour12 = (hour % 12) || 12;  
+        
+        const time12Hour = `${hour12}:${minute} ${suffix}`;
+        
+        const [year, month, day] = datePart.split('-');
+        const formattedDate = `${day}/${month}/${year}`;
+        
+        return `${formattedDate} ${time12Hour}`;
+    }
+    
+
     // Lưu dữ liệu vào Local Storage
     function saveDataFormToLocalStorage() {
-        $('#save-create-form').click(function () {
-            let existingData = JSON.parse(localStorage.getItem('formData')) || []; 
+        $('#save-create-form').on('click', function () {
+            let existingData = JSON.parse(localStorage.getItem('formData')) || [];
 
-            $('.form-container').each(function() {
+            let id,name,label, require,placeholder,typeInput;
+            let formData = {};
+
+    
+            $('.form-container').each(function () {
+
                 const form = $(this);
-                if (validateForm(form)){
-                    const id = $(this).find('.input-id').val();
-                    const name = $(this).find('.input-name').val();
-                    const label = $(this).find('.input-label').val();
-                    const require = $(this).find('.input-require').is(':checked');
-                    const placeholder = $(this).find('.input-placeholder').val();
-                    const typeInput = $(this).find('.data-option').val(); 
 
-                    const formData = {
+                if (validateForm(form)) {
+                    id = form.find('.input-id').val();
+                    name = form.find('.input-name').val();
+                    label = form.find('.input-label').val();
+                    require = form.find('.input-require').is(':checked');
+                    placeholder = form.find('.input-placeholder').val();
+                    typeInput = form.find('.data-option').val();
+    
+    
+                    formData = {
                         id: id,
                         name: name,
                         label: label,
                         typeInput: typeInput,
                         placeholder: placeholder,
                         require: require,
-                        type: $(this).find('.form-name').text().replace(' Field', '').toLowerCase(),
+                        type: form.find('.form-name').text().replace(' Field', '').toLowerCase(),
                     };
-    
-                    const exists = existingData.some(
-                        existingForm => existingForm.id === formData.id);
-    
-                    if (exists) {
 
-                        existingData = existingData.map(existingForm =>
-                            existingForm.id === formData.id ? formData : existingForm
-                        );
-                    } else {
+
+                    if (placeholder) {
+                        if (typeInput === 'time') {
+                            placeholder = convertTo12HourTime(placeholder);
+                        } else if (typeInput === 'datetime-local') {
+                            placeholder = convertTo12HourDatetime(placeholder);
+                        }
+                    } 
+        
+                    const existingFormIndex = existingData.findIndex(
+                        existingForm => existingForm.id === formData.id);
+        
+                    if (existingFormIndex !== -1) {
                         
+        
+                        const existingForm = existingData[existingFormIndex];
+                        
+                        // Giữ placeholder cũ nếu placeholder mới
+                        if (!formData.placeholder && existingForm.placeholder) {
+                            formData.placeholder = existingForm.placeholder;
+                        }
+        
+                        existingData[existingFormIndex] = formData;
+        
+                    } else {
                         existingData.push(formData);
                     }
                 }
             });
 
             localStorage.setItem('formData', JSON.stringify(existingData));
-            
         });
     }
+
+    
     saveDataFormToLocalStorage();
 
 
@@ -319,8 +390,9 @@ $(document).ready(function () {
 
         existingData.forEach(formData => {
             createFormContainer(formData.type); 
-            const lastForm = $('.form-container').last(); 
             
+            const lastForm = $('.form-container').last();
+
             // Cập nhật các giá trị cho form
             lastForm.find('.input-id').val(formData.id);
             lastForm.find('.input-name').val(formData.name);
