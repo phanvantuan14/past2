@@ -271,7 +271,6 @@ $(document).ready(function () {
         const label = form.find('.input-label').val();
         const placeholder = form.find('.input-placeholder').val();
         
-        const existingFormWithSameID = existingData.find(existingForm => existingForm.id === id);
 
         // Ẩn tất cả các thông báo lỗi trước
         form.find('.error-data-option').hide();
@@ -281,7 +280,6 @@ $(document).ready(function () {
         form.find('.error-placeholder').hide();
     
 
-        
     
         if (id === undefined || id.trim() === "") {
             form.find('.error-id').text('ID không được để trống.').show();
@@ -293,11 +291,32 @@ $(document).ready(function () {
             form.find('.error-id').text('ID phải có ít nhất 6 kí tự .').show();
             isValid = false;
         }
-        else if (existingFormWithSameID) {
-            if (existingFormWithSameID.formId !== formID ){
-                const currentForm = $(`form[data-id="${formID}"]`);
-                currentForm.find('.error-id').text('ID đã tồn tại, vui lòng nhập lại.').show();
-                isValid = false;
+        else  {
+            const existingFormWithSameID = existingData.find(existingForm => existingForm.id === id);
+            const currentForm = $(`form[data-id="${formID}"]`);
+
+            if (existingFormWithSameID && existingFormWithSameID.formId !== formID){
+                    const currentForm = $(`form[data-id="${formID}"]`);
+                    currentForm.find('.error-id').text('ID đã tồn tại, vui lòng nhập lại.').show();
+                    isValid = false;
+            } else {
+                let IDs = [];
+
+                $('.form-container').each(function () {
+                    const id = $(this).find('.input-id').val();; 
+                    if (id) {
+                        IDs.push(id); 
+                    }
+                });
+
+                for (let i = 0; i < IDs.length; i++) {
+                    for (let j = i + 1; j < IDs.length; j++) {
+                        if (IDs[i] === IDs[j]) {
+                            form.find('.error-id').text('ID đã tồn tại, vui lòng nhập lại.').show();
+                            isValid = false;
+                        }
+                    }
+                }
             }
         }
     
@@ -494,6 +513,7 @@ $(document).ready(function () {
             } 
         });
     }
+    
     deleteOneForm();
 
 
