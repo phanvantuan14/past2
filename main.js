@@ -259,12 +259,9 @@ $(document).ready(function () {
     // Validate data field
     function validateForm(form) {
 
-        let existingData = JSON.parse(localStorage.getItem('formData')) || [];
-        
         const idRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$/; 
         let isValid = true;
-        
-        
+
         
         const id = form.find('.input-id').val();
         const name = form.find('.input-name').val();
@@ -292,32 +289,28 @@ $(document).ready(function () {
             isValid = false;
         }
         else  {
-            const existingFormWithSameID = existingData.find(existingForm => existingForm.id === id);
-            const currentForm = $(`form[data-id="${formID}"]`);
-
-            if (existingFormWithSameID && existingFormWithSameID.formId !== formID){
-                    const currentForm = $(`form[data-id="${formID}"]`);
-                    currentForm.find('.error-id').text('ID đã tồn tại, vui lòng nhập lại.').show();
-                    isValid = false;
-            } else {
-                let IDs = [];
-
-                $('.form-container').each(function () {
-                    const id = $(this).find('.input-id').val();; 
-                    if (id) {
-                        IDs.push(id); 
-                    }
-                });
-
-                for (let i = 0; i < IDs.length; i++) {
-                    for (let j = i + 1; j < IDs.length; j++) {
-                        if (IDs[i] === IDs[j]) {
-                            form.find('.error-id').text('ID đã tồn tại, vui lòng nhập lại.').show();
-                            isValid = false;
-                        }
+            let IDs = [];
+            let duplicateIndexes = []; 
+            $('.form-container').each(function (index) {
+                const id = $(this).find('.input-id').val();
+                if (id) {
+                    if (IDs.includes(id)) {
+                        duplicateIndexes.push(index);
+                        duplicateIndexes.push(IDs.indexOf(id)); 
+                    } else {
+                        IDs.push(id);
                     }
                 }
-            }
+            });
+            
+            duplicateIndexes = [...new Set(duplicateIndexes)];
+            
+            duplicateIndexes.forEach(index => {
+                $('.form-container').eq(index).find('.error-id')
+                .text('ID đã tồn tại, vui lòng nhập lại.').show();
+                isValid = false;
+            });
+            
         }
     
         if (name === undefined || name.trim() === "") {
@@ -343,6 +336,7 @@ $(document).ready(function () {
     
         return isValid;
     }
+    
 
 
     // Lưu dữ liệu vào Local Storage
@@ -373,6 +367,7 @@ $(document).ready(function () {
                             placeholder = convertTo12HourTime(placeholder);
                         } else if (typeInput === 'datetime-local') {
                             placeholder = convertTo12HourDatetime(placeholder);
+                            if(placeholder === '') return;
                         }
                     } 
     
@@ -392,7 +387,7 @@ $(document).ready(function () {
         
                     const existingFormIndex = existingData.findIndex(
                         existingForm => existingForm.formId === formData.formId);
-        
+
                     if (existingFormIndex !== -1) {
                         
         
@@ -493,27 +488,26 @@ $(document).ready(function () {
     loadOrderFromLocalStorage();
 
 
-    // Xoa 1 form neu click vao bieu tuong xoa
+    // Xoa mot form duy nhat
     function deleteOneForm() {  
         $(".form").on('click', ".form-header .icon.x", function() {
             let formData = JSON.parse(localStorage.getItem('formData')) || [];
 
             const formContainer = $(this).closest(".form-container");
-            const id = formContainer.find('.input-id').val(); 
-    
-            // Kiểm tra nếu ID tồn tại trong formData trước khi xóa
-            if (formData.some(item => item.id === id)) {
-                formContainer.remove();
-    
-                // Cập nhật dữ liệu trong localStorage
-                formData = formData.filter(item => item.id !== id); 
-                localStorage.setItem('formData', JSON.stringify(formData)); 
-    
-                saveOrderToLocalStorage();
+            const formId = formContainer.find("form").data('id'); 
+        
+            if (formData.some(item => item.formId === formId) || formId) {
+                formContainer.remove(); 
+        
+                if (formData.some(item => item.formId === formId)) {
+                    formData = formData.filter(item => item.formId !== formId); 
+                    localStorage.setItem('formData', JSON.stringify(formData)); 
+                }
+        
+                saveOrderToLocalStorage(); 
             } 
         });
     }
-    
     deleteOneForm();
 
 
