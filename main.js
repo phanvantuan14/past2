@@ -1,6 +1,5 @@
 $(document).ready(function () {
     let formID = 0;
-    let type = '';
 
     // Chọn kiểu dữ liệu
     const choiceDataTypeOP = (formID) => {
@@ -33,7 +32,7 @@ $(document).ready(function () {
     // Get even click on button
     function getEvenOnclickButton(){
         $(".button-group button").on("click",function () {
-            type = $(this).data("type"); 
+            const type = $(this).data("type"); 
             if (type) { 
                 createFormContainer(type);
                 saveTypeToLocalStorage(type);
