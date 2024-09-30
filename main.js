@@ -234,26 +234,41 @@ $(document).ready(function () {
             console.log("Datetime string is undefined or null");
             return ''; 
         }
-        
-        const [datePart, timePart] = datetimeString.split('T');
-        
-        if (!datePart || !timePart) {
-            console.log("Invalid datetime string format");
-            return ''; 
+    
+        // Kiểm tra kiểu dữ liệu
+        if (typeof datetimeString === 'string') {
+            // Chuyển đổi từ chuỗi sang định dạng datetime-local
+            const date = new Date(datetimeString);
+            
+            // Kiểm tra xem date có hợp lệ không
+            if (isNaN(date.getTime())) {
+                console.log("Invalid datetime string format");
+                return ''; 
+            }
+            
+            // Chuyển đổi datetime-local thành chuỗi với định dạng phù hợp
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // tháng bắt đầu từ 0
+            const day = String(date.getDate()).padStart(2, '0');
+            const hour = String(date.getHours()).padStart(2, '0');
+            const minute = String(date.getMinutes()).padStart(2, '0');
+    
+            datetimeString = `${year}-${month}-${day}T${hour}:${minute}`; // Chuyển đổi thành định dạng datetime-local
         }
-        
+    
+        // Sau khi đảm bảo datetimeString là datetime-local, xử lý tiếp
+        const [datePart, timePart] = datetimeString.split('T');
+    
         const [hour, minute] = timePart.split(':');
-        
         let suffix = hour >= 12 ? 'CH' : 'SA';  
         let hour12 = (hour % 12) || 12;  
-        
         const time12Hour = `${hour12}:${minute} ${suffix}`;
         
-        const [year, month, day] = datePart.split('-');
-        const formattedDate = `${day}/${month}/${year}`;
-        
+        const formattedDate = `${datePart.split('-').reverse().join('/')}`; // Đổi định dạng ngày tháng
+    
         return `${formattedDate} ${time12Hour}`;
     }
+    
     
 
     // Validate data field
@@ -367,7 +382,6 @@ $(document).ready(function () {
                             placeholder = convertTo12HourTime(placeholder);
                         } else if (typeInput === 'datetime-local') {
                             placeholder = convertTo12HourDatetime(placeholder);
-                            if(placeholder === '') return;
                         }
                     } 
     
