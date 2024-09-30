@@ -321,10 +321,6 @@ $(document).ready(function () {
             form.find('.error-placeholder').text('Placeholder không được để trống.').show();
             isValid = false;
         }
-
-        if(isValid){
-            alert("Thêm thành công");
-        }
     
         return isValid;
     }
@@ -332,21 +328,20 @@ $(document).ready(function () {
 
     // Lưu dữ liệu vào Local Storage
     function saveDataFormToLocalStorage() {
+        
         $('#save-create-form').on('click', function () {
             let existingData = JSON.parse(localStorage.getItem('formData')) || [];
 
-            // console.log(existingData);
-            
             let id,name,label, require,placeholder,typeInput;
             let formData = {};
-
+            let isAnyFormValid = false;
     
             $('.form-container').each(function () {
 
                 const form = $(this);
 
-
                 if (validateForm(form)) {
+                    isAnyFormValid = true; 
                     id = form.find('.input-id').val();
                     name = form.find('.input-name').val();
                     label = form.find('.input-label').val();
@@ -354,6 +349,13 @@ $(document).ready(function () {
                     placeholder = form.find('.input-placeholder').val();
                     typeInput = form.find('.data-option').val();
     
+                    if (placeholder) {
+                        if (typeInput === 'time') {
+                            placeholder = convertTo12HourTime(placeholder);
+                        } else if (typeInput === 'datetime-local') {
+                            placeholder = convertTo12HourDatetime(placeholder);
+                        }
+                    } 
     
                     formData = {
                         formId: form.find("form").data('id'),
@@ -367,13 +369,7 @@ $(document).ready(function () {
                     };
 
 
-                    if (placeholder) {
-                        if (typeInput === 'time') {
-                            placeholder = convertTo12HourTime(placeholder);
-                        } else if (typeInput === 'datetime-local') {
-                            placeholder = convertTo12HourDatetime(placeholder);
-                        }
-                    } 
+                    
         
                     const existingFormIndex = existingData.findIndex(
                         existingForm => existingForm.formId === formData.formId);
@@ -395,8 +391,10 @@ $(document).ready(function () {
                     }
                 }
             });
-
-            localStorage.setItem('formData', JSON.stringify(existingData));
+            if (isAnyFormValid) {
+                localStorage.setItem('formData', JSON.stringify(existingData));
+                alert("Thêm thành công");
+            }
         });
     }
     saveDataFormToLocalStorage();
@@ -478,18 +476,22 @@ $(document).ready(function () {
 
     // Xoa 1 form neu click vao bieu tuong xoa
     function deleteOneForm() {  
-        let formData = JSON.parse(localStorage.getItem('formData')) || [];
-    
-        $(document).on('click', '.form-header .icon.x', function() {
-            const formContainer = $(this).closest('.form-container');
-            const id = formContainer.find('.input-id').val(); 
+        $(".form").on('click', ".form-header .icon.x", function() {
+            let formData = JSON.parse(localStorage.getItem('formData')) || [];
 
-            formContainer.remove();
-            
-            formData = formData.filter(item => item.id !== id); 
-            localStorage.setItem('formData', JSON.stringify(formData)); 
+            const formContainer = $(this).closest(".form-container");
+            const id = formContainer.find('.input-id').val(); 
     
-            saveOrderToLocalStorage();
+            // Kiểm tra nếu ID tồn tại trong formData trước khi xóa
+            if (formData.some(item => item.id === id)) {
+                formContainer.remove();
+    
+                // Cập nhật dữ liệu trong localStorage
+                formData = formData.filter(item => item.id !== id); 
+                localStorage.setItem('formData', JSON.stringify(formData)); 
+    
+                saveOrderToLocalStorage();
+            } 
         });
     }
     deleteOneForm();
