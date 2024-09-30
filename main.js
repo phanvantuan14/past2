@@ -1,6 +1,6 @@
 $(document).ready(function () {
     let formID = 0;
-
+    let type = '';
 
     // Chọn kiểu dữ liệu
     const choiceDataTypeOP = (formID) => {
@@ -33,7 +33,7 @@ $(document).ready(function () {
     // Get even click on button
     function getEvenOnclickButton(){
         $(".button-group button").on("click",function () {
-            const type = $(this).data("type"); 
+            type = $(this).data("type"); 
             if (type) { 
                 createFormContainer(type);
                 saveTypeToLocalStorage(type);
@@ -44,7 +44,7 @@ $(document).ready(function () {
 
 
     // Get form type name
-    function getFormType(string) {
+    function getFormTypeName(string) {
         if (string) { 
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
@@ -60,7 +60,7 @@ $(document).ready(function () {
         let formContent = `
             <form data-id="${formID}" id="form-action">
                 <div class="form-header"> 
-                    <span class="form-name">${getFormType(type)} Field</span>
+                    <span class="form-name">${getFormTypeName(type)} Field</span>
                     <i class="icon x"></i>
                 </div>
         `;
@@ -259,15 +259,20 @@ $(document).ready(function () {
 
     // Validate data field
     function validateForm(form) {
+
+        let existingData = JSON.parse(localStorage.getItem('formData')) || [];
+        
         const idRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$/; 
-
-
+        let isValid = true;
+        
+        
+        
         const id = form.find('.input-id').val();
         const name = form.find('.input-name').val();
         const label = form.find('.input-label').val();
         const placeholder = form.find('.input-placeholder').val();
-        const inputType = form.find('.data-option').val();
-
+        
+        const existingFormWithSameID = existingData.find(existingForm => existingForm.id === id);
 
         // Ẩn tất cả các thông báo lỗi trước
         form.find('.error-data-option').hide();
@@ -276,7 +281,8 @@ $(document).ready(function () {
         form.find('.error-label').hide();
         form.find('.error-placeholder').hide();
     
-        let isValid = true;
+
+        
     
         if (id === undefined || id.trim() === "") {
             form.find('.error-id').text('ID không được để trống.').show();
@@ -287,6 +293,13 @@ $(document).ready(function () {
         } else if (id.length < 5) {
             form.find('.error-id').text('ID phải có ít nhất 6 kí tự .').show();
             isValid = false;
+        }
+        else if (existingFormWithSameID) {
+            if (existingFormWithSameID.formId !== formID ){
+                const currentForm = $(`form[data-id="${formID}"]`);
+                currentForm.find('.error-id').text('ID đã tồn tại, vui lòng nhập lại.').show();
+                isValid = false;
+            }
         }
     
         if (name === undefined || name.trim() === "") {
@@ -309,6 +322,10 @@ $(document).ready(function () {
             form.find('.error-placeholder').text('Placeholder không được để trống.').show();
             isValid = false;
         }
+
+        if(isValid){
+            alert("Thêm thành công");
+        }
     
         return isValid;
     }
@@ -319,7 +336,7 @@ $(document).ready(function () {
         $('#save-create-form').on('click', function () {
             let existingData = JSON.parse(localStorage.getItem('formData')) || [];
 
-            console.log(existingData);
+            // console.log(existingData);
             
             let id,name,label, require,placeholder,typeInput;
             let formData = {};
@@ -466,11 +483,11 @@ $(document).ready(function () {
     
         $(document).on('click', '.form-header .icon.x', function() {
             const formContainer = $(this).closest('.form-container');
-            const formId = formContainer.find('.input-id').val(); 
+            const id = formContainer.find('.input-id').val(); 
 
             formContainer.remove();
             
-            formData = formData.filter(item => item.id !== formId); 
+            formData = formData.filter(item => item.id !== id); 
             localStorage.setItem('formData', JSON.stringify(formData)); 
     
             saveOrderToLocalStorage();
