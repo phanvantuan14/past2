@@ -1,30 +1,6 @@
 $(document).ready(function () {
     let formID = 0;
 
-    // Chọn kiểu dữ liệu
-    const choiceDataTypeOP = (formID) => {
-        
-        $(`#data-type-${formID}`).on("click",function() {
-            $(`#data-type-options-${formID}`).toggle();
-        });
-    
-        // Cập nhật giá trị của ô input khi chọn một option
-        $(`#data-type-options-${formID} li`).on("click",function() {
-            const selectedValue = $(this).attr('data-value'); 
-            $(`#data-option-${formID}`).val(selectedValue); 
-    
-            $(`#placeholder-${formID}`).attr('type', selectedValue);
-        });
-    
-        // Ẩn danh sách nếu click ra ngoài
-        $(document).click(function(event) {
-            if (!$(event.target).closest(`#data-type-${formID}`).length) {
-                $(`#data-type-options-${formID}`).hide();
-            }
-        });
-    }
-    
-
     // Load data cua form tu local storage
     loadDataFromLocalStorage();
 
@@ -70,19 +46,14 @@ $(document).ready(function () {
                 <div class="form-colum ">
                     <div class="form-row position-item">
                         <span class="label">Type</span>
-                        <input class="data-option" id="data-option-${formID}" type="text" value="text" readonly>
-                        <div class="data-type" id="data-type-${formID}"> 
-                            <i class="icon chevron down"></i>
-                            <ul class="data-type-options" id="data-type-options-${formID}">
-                                <li data-value="int">Number</li>
-                                <li data-value="text">Text</li>
-                                <li data-value="date">Date</li>
-                                <li data-value="time">Time</li>
-                                <li data-value="datetime-local">Date time Local</li>
-                            </ul>
-                        </div>
+                        <select class="data-option" id="data-option-${formID}">
+                            <option data-value="text">Text</option>
+                            <option data-value="int">Number</option>
+                            <option data-value="date">Date</option>
+                            <option data-value="time">Time</option>
+                            <option data-value="datetime-local">datetime-local</option>
+                        </select>
                     </div>
-                    
                     <span class="error-data-option" ></span>
                 </div>
                 <div class="form-colum">
@@ -199,7 +170,7 @@ $(document).ready(function () {
 
         // Animation thêm form
         newFormContainer.hide().appendTo('.form').fadeIn(500, function() {
-            $('html, body').animate({ scrollTop: $(document).height() }, 1000);
+            $('html, body').animate({ scrollTop: $(document).height() }, 300);
             newFormContainer.addClass('show'); 
         });
 
@@ -208,6 +179,23 @@ $(document).ready(function () {
         animationDragForm();
     }
 
+    // Chọn kiểu dữ liệu
+    function choiceDataTypeOP(formID) {
+        $(`#data-option-${formID}`).on("change", function() {
+            const selectedType = $(this).find(":selected").attr('data-value');
+        
+            $(`#placeholder-${formID}`).attr("type", selectedType);
+            $(`#placeholder-${formID}`).off('input');
+        
+            if (selectedType === 'int') {
+                $(`#placeholder-${formID}`).on('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            }
+        });
+        
+    }
+    
 
     function convertTo12HourTime(timeString) {
         if (!timeString) {
@@ -215,8 +203,14 @@ $(document).ready(function () {
             return ''; 
         }
         
+        // Kiểm tra xem chuỗi thời gian có chứa "CH" hoặc "SA" không
+        if (timeString.includes('CH') || timeString.includes('SA')) {
+            return timeString; // Nếu có, trả về chuỗi nguyên bản
+        }
+        
         const [hour, minute] = timeString.split(':');
         
+        // Kiểm tra giá trị hour và minute
         if (!hour || !minute) {
             console.log("Invalid time string format");
             return ''; 
@@ -228,6 +222,7 @@ $(document).ready(function () {
         return `${hour12}:${minute} ${suffix}`;
     }
     
+    
 
     function convertTo12HourDatetime(datetimeString) {
         if (!datetimeString) {
@@ -237,26 +232,22 @@ $(document).ready(function () {
     
         // Kiểm tra kiểu dữ liệu
         if (typeof datetimeString === 'string') {
-            // Chuyển đổi từ chuỗi sang định dạng datetime-local
             const date = new Date(datetimeString);
             
-            // Kiểm tra xem date có hợp lệ không
             if (isNaN(date.getTime())) {
                 console.log("Invalid datetime string format");
                 return ''; 
             }
             
-            // Chuyển đổi datetime-local thành chuỗi với định dạng phù hợp
             const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // tháng bắt đầu từ 0
+            const month = String(date.getMonth() + 1).padStart(2, '0'); 
             const day = String(date.getDate()).padStart(2, '0');
             const hour = String(date.getHours()).padStart(2, '0');
             const minute = String(date.getMinutes()).padStart(2, '0');
     
-            datetimeString = `${year}-${month}-${day}T${hour}:${minute}`; // Chuyển đổi thành định dạng datetime-local
+            datetimeString = `${year}-${month}-${day}T${hour}:${minute}`; 
         }
     
-        // Sau khi đảm bảo datetimeString là datetime-local, xử lý tiếp
         const [datePart, timePart] = datetimeString.split('T');
     
         const [hour, minute] = timePart.split(':');
@@ -264,11 +255,9 @@ $(document).ready(function () {
         let hour12 = (hour % 12) || 12;  
         const time12Hour = `${hour12}:${minute} ${suffix}`;
         
-        const formattedDate = `${datePart.split('-').reverse().join('/')}`; // Đổi định dạng ngày tháng
-    
+        const formattedDate = `${datePart.split('-').reverse().join('/')}`; 
         return `${formattedDate} ${time12Hour}`;
     }
-    
     
 
     // Validate data field
@@ -307,13 +296,13 @@ $(document).ready(function () {
             let IDs = [];
             let duplicateIndexes = []; 
             $('.form-container').each(function (index) {
-                const id = $(this).find('.input-id').val();
-                if (id) {
-                    if (IDs.includes(id)) {
+                const idIput = $(this).find('.input-id').val();
+                if (idIput) {
+                    if (IDs.includes(idIput)) {
                         duplicateIndexes.push(index);
-                        duplicateIndexes.push(IDs.indexOf(id)); 
+                        duplicateIndexes.push(IDs.indexOf(idIput)); 
                     } else {
-                        IDs.push(id);
+                        IDs.push(idIput);
                     }
                 }
             });
@@ -325,6 +314,8 @@ $(document).ready(function () {
                 .text('ID đã tồn tại, vui lòng nhập lại.').show();
                 isValid = false;
             });
+
+            duplicateIndexes = []
             
         }
     
@@ -353,7 +344,6 @@ $(document).ready(function () {
     }
     
 
-
     // Lưu dữ liệu vào Local Storage
     function saveDataFormToLocalStorage() {
         
@@ -376,9 +366,11 @@ $(document).ready(function () {
                     require = form.find('.input-require').is(':checked');
                     placeholder = form.find('.input-placeholder').val();
                     typeInput = form.find('.data-option').val();
-    
+                    
+                    console.log(typeInput);
+
                     if (placeholder) {
-                        if (typeInput === 'time') {
+                        if (typeInput === 'Time') {
                             placeholder = convertTo12HourTime(placeholder);
                         } else if (typeInput === 'datetime-local') {
                             placeholder = convertTo12HourDatetime(placeholder);
@@ -421,7 +413,7 @@ $(document).ready(function () {
             });
             if (isAnyFormValid) {
                 localStorage.setItem('formData', JSON.stringify(existingData));
-                alert("Thêm thành công");
+                alert("Lưu thành công");
             }
         });
     }
@@ -509,7 +501,7 @@ $(document).ready(function () {
 
             const formContainer = $(this).closest(".form-container");
             const formId = formContainer.find("form").data('id'); 
-        
+            
             if (formData.some(item => item.formId === formId) || formId) {
                 formContainer.remove(); 
         
