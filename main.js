@@ -22,8 +22,7 @@ $(document).ready(function () {
     function getFormTypeName(string) {
         if (string) { 
             return string.charAt(0).toUpperCase() + string.slice(1);
-        }
-        return ''; 
+        } return ''; 
     }
 
 
@@ -37,8 +36,7 @@ $(document).ready(function () {
                 <div class="form-header"> 
                     <span class="form-name">${getFormTypeName(type)} Field</span>
                     <i class="icon x"></i>
-                </div>
-        `;
+                </div>`;
 
         // Form cho kiểu input
         if (type === "input") {
@@ -193,24 +191,19 @@ $(document).ready(function () {
                 });
             }
         });
-        
     }
     
 
     function convertTo12HourTime(timeString) {
         if (!timeString) {
-            console.log("Time string is undefined or null");
             return ''; 
         }
         
-        // Kiểm tra xem chuỗi thời gian có chứa "CH" hoặc "SA" không
         if (timeString.includes('CH') || timeString.includes('SA')) {
-            return timeString; // Nếu có, trả về chuỗi nguyên bản
+            return timeString; 
         }
         
         const [hour, minute] = timeString.split(':');
-        
-        // Kiểm tra giá trị hour và minute
         if (!hour || !minute) {
             console.log("Invalid time string format");
             return ''; 
@@ -230,7 +223,6 @@ $(document).ready(function () {
             return ''; 
         }
     
-        // Kiểm tra kiểu dữ liệu
         if (typeof datetimeString === 'string') {
             const date = new Date(datetimeString);
             
@@ -288,7 +280,7 @@ $(document).ready(function () {
         } else if (!idRegex.test(id)) {
             form.find('.error-id').text('ID phải chứa cả chữ và số.').show();
             isValid = false;
-        } else if (id.length < 5) {
+        } else if (id.length < 6) {
             form.find('.error-id').text('ID phải có ít nhất 6 kí tự .').show();
             isValid = false;
         }
@@ -335,7 +327,8 @@ $(document).ready(function () {
             isValid = false;
         }
     
-        if (form.find('.input-placeholder').length && (placeholder === undefined || placeholder.trim() === "")) {
+        if (form.find('.input-placeholder').length && 
+            (placeholder === undefined || placeholder.trim() === "")) {
             form.find('.error-placeholder').text('Placeholder không được để trống.').show();
             isValid = false;
         }
@@ -367,8 +360,6 @@ $(document).ready(function () {
                     placeholder = form.find('.input-placeholder').val();
                     typeInput = form.find('.data-option').val();
                     
-                    console.log(typeInput);
-
                     if (placeholder) {
                         if (typeInput === 'Time') {
                             placeholder = convertTo12HourTime(placeholder);
@@ -387,25 +378,18 @@ $(document).ready(function () {
                         require: require,
                         type: form.find('.form-name').text().replace(' Field', '').toLowerCase(),
                     };
-
-
-                    
         
                     const existingFormIndex = existingData.findIndex(
                         existingForm => existingForm.formId === formData.formId);
 
                     if (existingFormIndex !== -1) {
-                        
-        
                         const existingForm = existingData[existingFormIndex];
-                        
+
                         // Giữ placeholder cũ nếu placeholder mới
                         if (!formData.placeholder && existingForm.placeholder) {
                             formData.placeholder = existingForm.placeholder;
                         }
-        
                         existingData[existingFormIndex] = formData;
-        
                     } else {
                         existingData.push(formData);
                     }
@@ -479,12 +463,10 @@ $(document).ready(function () {
 
         if (formOrder.length > 0) {
             const formContainer = $('.form');
-
             formOrder.forEach(id => {
                 const form = $('.form-container').filter(function() {
                     return $(this).find('.input-id').val() === id;
                 });
-
                 if (form.length) {
                     formContainer.append(form);
                 }
@@ -509,7 +491,6 @@ $(document).ready(function () {
                     formData = formData.filter(item => item.formId !== formId); 
                     localStorage.setItem('formData', JSON.stringify(formData)); 
                 }
-        
                 saveOrderToLocalStorage(); 
             } 
         });
@@ -528,7 +509,6 @@ $(document).ready(function () {
                     $(this).remove();
                 });
             });
-
 
             formID = 0;
             localStorage.removeItem('formData');
