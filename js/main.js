@@ -172,7 +172,7 @@ $(document).ready(function () {
             newFormContainer.addClass('show'); 
         });
 
-        choiceDataTypeOP(formID);
+        choiceDataTypeOP(formID)
 
         animationDragForm();
     }
@@ -194,68 +194,9 @@ $(document).ready(function () {
     }
     
 
-    function convertTo12HourTime(timeString) {
-        if (!timeString) {
-            return ''; 
-        }
-        
-        if (timeString.includes('CH') || timeString.includes('SA')) {
-            return timeString; 
-        }
-        
-        const [hour, minute] = timeString.split(':');
-        if (!hour || !minute) {
-            console.log("Invalid time string format");
-            return ''; 
-        }
-        
-        let suffix = hour >= 12 ? 'CH' : 'SA';  
-        let hour12 = (hour % 12) || 12;  
-        
-        return `${hour12}:${minute} ${suffix}`;
-    }
-    
-    
-
-    function convertTo12HourDatetime(datetimeString) {
-        if (!datetimeString) {
-            console.log("Datetime string is undefined or null");
-            return ''; 
-        }
-    
-        if (typeof datetimeString === 'string') {
-            const date = new Date(datetimeString);
-            
-            if (isNaN(date.getTime())) {
-                console.log("Invalid datetime string format");
-                return ''; 
-            }
-            
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0'); 
-            const day = String(date.getDate()).padStart(2, '0');
-            const hour = String(date.getHours()).padStart(2, '0');
-            const minute = String(date.getMinutes()).padStart(2, '0');
-    
-            datetimeString = `${year}-${month}-${day}T${hour}:${minute}`; 
-        }
-    
-        const [datePart, timePart] = datetimeString.split('T');
-    
-        const [hour, minute] = timePart.split(':');
-        let suffix = hour >= 12 ? 'CH' : 'SA';  
-        let hour12 = (hour % 12) || 12;  
-        const time12Hour = `${hour12}:${minute} ${suffix}`;
-        
-        const formattedDate = `${datePart.split('-').reverse().join('/')}`; 
-        return `${formattedDate} ${time12Hour}`;
-    }
-    
-
     // Validate data field
     function validateForm(form) {
 
-        const idRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$/; 
         let isValid = true;
 
         
@@ -277,10 +218,8 @@ $(document).ready(function () {
         if (id === undefined || id.trim() === "") {
             form.find('.error-id').text('ID không được để trống.').show();
             isValid = false;
-        } else if (!idRegex.test(id)) {
-            form.find('.error-id').text('ID phải chứa cả chữ và số.').show();
-            isValid = false;
-        } else if (id.length < 6) {
+        }
+        else if (id.length < 6) {
             form.find('.error-id').text('ID phải có ít nhất 6 kí tự .').show();
             isValid = false;
         }
@@ -339,68 +278,62 @@ $(document).ready(function () {
 
     // Lưu dữ liệu vào Local Storage
     function saveDataFormToLocalStorage() {
-        
         $('#save-create-form').on('click', function () {
             let existingData = JSON.parse(localStorage.getItem('formData')) || [];
-
-            let id,name,label, require,placeholder,typeInput;
+    
+            let id, name, label, require, placeholder, typeInput;
             let formData = {};
-            let isAnyFormValid = false;
+            let isAnyFormValid = true; 
     
             $('.form-container').each(function () {
-
                 const form = $(this);
-
-                if (validateForm(form)) {
-                    isAnyFormValid = true; 
-                    id = form.find('.input-id').val();
-                    name = form.find('.input-name').val();
-                    label = form.find('.input-label').val();
-                    require = form.find('.input-require').is(':checked');
-                    placeholder = form.find('.input-placeholder').val();
-                    typeInput = form.find('.data-option').val();
-                    
-                    if (placeholder) {
-                        if (typeInput === 'Time') {
-                            placeholder = convertTo12HourTime(placeholder);
-                        } else if (typeInput === 'datetime-local') {
-                            placeholder = convertTo12HourDatetime(placeholder);
-                        }
-                    } 
     
-                    formData = {
-                        formId: form.find("form").data('id'),
-                        id: id,
-                        name: name,
-                        label: label,
-                        typeInput: typeInput,
-                        placeholder: placeholder,
-                        require: require,
-                        type: form.find('.form-name').text().replace(' Field', '').toLowerCase(),
-                    };
-        
-                    const existingFormIndex = existingData.findIndex(
-                        existingForm => existingForm.formId === formData.formId);
-
-                    if (existingFormIndex !== -1) {
-                        const existingForm = existingData[existingFormIndex];
-
-                        // Giữ placeholder cũ nếu placeholder mới
-                        if (!formData.placeholder && existingForm.placeholder) {
-                            formData.placeholder = existingForm.placeholder;
-                        }
-                        existingData[existingFormIndex] = formData;
-                    } else {
-                        existingData.push(formData);
+                if (!validateForm(form)) {
+                    isAnyFormValid = false; 
+                    return; 
+                }
+    
+                id = form.find('.input-id').val();
+                name = form.find('.input-name').val();
+                label = form.find('.input-label').val();
+                require = form.find('.input-require').is(':checked');
+                placeholder = form.find('.input-placeholder').val();
+                typeInput = form.find('.data-option').val();
+    
+                formData = {
+                    formId: form.find("form").data('id'),
+                    id: id,
+                    name: name,
+                    label: label,
+                    typeInput: typeInput,
+                    placeholder: placeholder,
+                    require: require,
+                    type: form.find('.form-name').text().replace(' Field', '').toLowerCase(),
+                };
+    
+                const existingFormIndex = existingData.findIndex(
+                    existingForm => existingForm.formId === formData.formId
+                );
+    
+                if (existingFormIndex !== -1) {
+                    const existingForm = existingData[existingFormIndex];
+    
+                    if (!formData.placeholder && existingForm.placeholder) {
+                        formData.placeholder = existingForm.placeholder;
                     }
+                    existingData[existingFormIndex] = formData;
+                } else {
+                    existingData.push(formData);
                 }
             });
+    
             if (isAnyFormValid) {
                 localStorage.setItem('formData', JSON.stringify(existingData));
                 alert("Lưu thành công");
             }
         });
     }
+    
     saveDataFormToLocalStorage();
 
 
@@ -430,6 +363,9 @@ $(document).ready(function () {
             lastForm.find('.input-placeholder').val(formData.placeholder);
             lastForm.find('.input-require').prop('checked', formData.require);
             lastForm.find('.data-option').val(formData.typeInput); 
+
+            const placeholderInput = lastForm.find('.input-placeholder');
+            placeholderInput.attr('type', formData.typeInput);
         });
     }
 
