@@ -2,7 +2,7 @@ $(document).ready(function () {
     let formID = 0;
 
     // Load data cua form tu local storage
-    loadDataFromLocalStorage();
+    loadFormDataAndOrderFromLocalStorage()
 
 
     // Get even click on button
@@ -172,10 +172,12 @@ $(document).ready(function () {
             newFormContainer.addClass('show'); 
         });
 
-        choiceDataTypeOP(formID)
+        choiceDataTypeOP(formID);
 
         animationDragForm();
+        
     }
+    
 
     // Chọn kiểu dữ liệu
     function choiceDataTypeOP(formID) {
@@ -312,7 +314,7 @@ $(document).ready(function () {
                 };
     
                 const existingFormIndex = existingData.findIndex(
-                    existingForm => existingForm.formId === formData.formId
+                    existingForm => existingForm.id === formData.id
                 );
     
                 if (existingFormIndex !== -1) {
@@ -333,7 +335,6 @@ $(document).ready(function () {
             }
         });
     }
-    
     saveDataFormToLocalStorage();
 
 
@@ -348,26 +349,26 @@ $(document).ready(function () {
 
 
     // Tải dữ liệu từ Local Storage
-    function loadDataFromLocalStorage() {
-        let existingData = JSON.parse(localStorage.getItem('formData')) || []; 
-
-        existingData.forEach(formData => {
-            createFormContainer(formData.type); 
+    // function loadDataFromLocalStorage() {
+    //     let existingData = JSON.parse(localStorage.getItem('formData')) || []; 
+        
+    //     existingData.forEach(formData => {
+    //         createFormContainer(formData.type); 
             
-            const lastForm = $('.form-container').last();
+    //         const lastForm = $('.form-container').last();
 
-            // Cập nhật các giá trị cho form
-            lastForm.find('.input-id').val(formData.id);
-            lastForm.find('.input-name').val(formData.name);
-            lastForm.find('.input-label').val(formData.label);
-            lastForm.find('.input-placeholder').val(formData.placeholder);
-            lastForm.find('.input-require').prop('checked', formData.require);
-            lastForm.find('.data-option').val(formData.typeInput); 
+    //         // Cập nhật các giá trị cho form
+    //         lastForm.find('.input-id').val(formData.id);
+    //         lastForm.find('.input-name').val(formData.name);
+    //         lastForm.find('.input-label').val(formData.label);
+    //         lastForm.find('.input-placeholder').val(formData.placeholder);
+    //         lastForm.find('.input-require').prop('checked', formData.require);
+    //         lastForm.find('.data-option').val(formData.typeInput); 
 
-            const placeholderInput = lastForm.find('.input-placeholder');
-            placeholderInput.attr('type', formData.typeInput);
-        });
-    }
+    //         const placeholderInput = lastForm.find('.input-placeholder');
+    //         placeholderInput.attr('type', formData.typeInput);
+    //     });
+    // }
 
 
     // Animation kéo thả form
@@ -394,44 +395,70 @@ $(document).ready(function () {
 
 
     // Load lai thu tu form da luu truoc do
-    function loadOrderFromLocalStorage() {
+    function loadFormDataAndOrderFromLocalStorage() {
         const formOrder = JSON.parse(localStorage.getItem('formOrder')) || [];
-
-        if (formOrder.length > 0) {
-            const formContainer = $('.form');
-            formOrder.forEach(id => {
-                const form = $('.form-container').filter(function() {
-                    return $(this).find('.input-id').val() === id;
-                });
-                if (form.length) {
-                    formContainer.append(form);
-                }
-            });
-        }
+        let formDataList = JSON.parse(localStorage.getItem('formData')) || [];
+    
+        // Tạo một mảng chứa các form đã được sắp xếp theo formOrder
+        const sortedFormData = [];
+    
+        // Đầu tiên, lấy các form có trong formOrder và thêm vào sortedFormData
+        formOrder.forEach(id => {
+            const formData = formDataList.find(form => form.id === id);
+            if (formData) {
+                sortedFormData.push(formData);
+                formDataList = formDataList.filter(form => form.id !== id); // Loại bỏ form này khỏi formDataList
+            }
+        });
+    
+        // Sau đó, thêm các form không có trong formOrder vào cuối sortedFormData
+        sortedFormData.push(...formDataList);
+    
+        // Bây giờ chúng ta hiển thị các form theo sortedFormData
+        sortedFormData.forEach(formData => {
+            createFormContainer(formData.type);
+    
+            const lastForm = $('.form-container').last();
+            lastForm.find('.input-id').val(formData.id);
+            lastForm.find('.input-name').val(formData.name);
+            lastForm.find('.input-label').val(formData.label);
+            lastForm.find('.input-placeholder').val(formData.placeholder);
+            lastForm.find('.input-require').prop('checked', formData.require);
+            lastForm.find('.data-option').val(formData.typeInput);
+    
+            const placeholderInput = lastForm.find('.input-placeholder');
+            placeholderInput.attr('type', formData.typeInput);
+        });
     }
-    loadOrderFromLocalStorage();
-
-
+    
+    
     // Xoa mot form duy nhat
     function deleteOneForm() {  
         $(".form").on('click', ".form-header .icon.x", function() {
             let formData = JSON.parse(localStorage.getItem('formData')) || [];
-
+    
             const formContainer = $(this).closest(".form-container");
-            const formId = formContainer.find("form").data('id'); 
-            
-            if (formData.some(item => item.formId === formId) || formId) {
+            const id = formContainer.find('.input-id').val();
+            const formId = formContainer.data('formid'); // Giả định formId đã được gán sẵn vào data attribute
+    
+            // Trường hợp id là undefined hoặc id không tồn tại trong formData
+            if (id === undefined || !formData.some(item => item.id === id)) {
+                formContainer.remove(); // Chỉ xóa giao diện
+            }
+    
+            // Trường hợp id hợp lệ
+            if (formData.some(item => item.id === id)) {
                 formContainer.remove(); 
-        
-                if (formData.some(item => item.formId === formId)) {
-                    formData = formData.filter(item => item.formId !== formId); 
-                    localStorage.setItem('formData', JSON.stringify(formData)); 
-                }
+    
+                // Nếu có nhiều hơn một formData thì cập nhật lại localStorage
+                formData = formData.filter(item => item.id !== id);
+                localStorage.setItem('formData', JSON.stringify(formData));
                 saveOrderToLocalStorage(); 
-            } 
+            }
         });
     }
     deleteOneForm();
+
 
 
     // Reset dữ liệu form
